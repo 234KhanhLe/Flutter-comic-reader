@@ -1,6 +1,8 @@
+import 'package:comic_reader_app/handler/authentication_handler.dart';
 import 'package:comic_reader_app/model/post.dart';
 import 'package:comic_reader_app/post_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AddNewPostPage extends StatefulWidget {
   final List<Post> posts;
@@ -15,10 +17,10 @@ class _AddNewPostPageState extends State<AddNewPostPage> {
   final _formKey = GlobalKey<FormState>();
   String title = '';
   String content = '';
-  String author = '';
 
   @override
   Widget build(BuildContext context) {
+    final authenticationHandler = context.watch<AuthenticationHandler>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Post'),
@@ -52,16 +54,6 @@ class _AddNewPostPageState extends State<AddNewPostPage> {
                 onSaved: (value) => setState(() => content = value!),
               ),
               const SizedBox(height: 16.0),
-              TextFormField(
-                decoration: const InputDecoration(labelText: "Author"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your name";
-                  }
-                  return null;
-                },
-                onSaved: (value) => setState(() => author = value!),
-              ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
@@ -71,7 +63,7 @@ class _AddNewPostPageState extends State<AddNewPostPage> {
                     final newPost = Post(
                       title: title,
                       content: content,
-                      author: author,
+                      author: authenticationHandler.user!,
                       createdTime: DateTime.now(),
                       updatedTime: DateTime.now(),
                     );

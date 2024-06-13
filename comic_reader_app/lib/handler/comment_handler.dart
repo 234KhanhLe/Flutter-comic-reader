@@ -134,4 +134,24 @@ class CommentHandler extends ChangeNotifier {
     // Notify listeners that the comments list has changed
     notifyListeners();
   }
+
+  List<Comment> getPostComments() {
+    return _comments
+        .where((comment) => comment.type == CommentType.post)
+        .toList();
+  }
+
+  // Function to get a list of comments for comics
+  List<Comment> getComicComments() {
+    return _comments
+        .where((comment) => comment.type == CommentType.comic)
+        .toList();
+  }
+
+  // Function to get a list of comments for novels
+  List<Comment> getNovelComments() {
+    return _comments
+        .where((comment) => comment.type == CommentType.novel)
+        .toList();
+  }
 }

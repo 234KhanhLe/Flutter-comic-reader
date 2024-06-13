@@ -1,6 +1,9 @@
 import 'package:comic_reader_app/custom_widget/comment_widget.dart';
+import 'package:comic_reader_app/handler/authentication_handler.dart';
+import 'package:comic_reader_app/model/comment.dart';
 import 'package:comic_reader_app/model/post.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PostDetailPage extends StatefulWidget {
   Post post;
@@ -67,6 +70,7 @@ class PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authenticationHandler = context.watch<AuthenticationHandler>();
     final mostReactions = widget.post.reactions.isNotEmpty
         ? (widget.post.reactions.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value)))
@@ -82,7 +86,7 @@ class PostDetailPageState extends State<PostDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'By ${widget.post.author}',
+              'By ${widget.post.author.username}',
               style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(height: 10),
@@ -123,18 +127,34 @@ class PostDetailPageState extends State<PostDetailPage> {
             ),
             const SizedBox(height: 10),
             if (isCommentSectionVisible)
-              SingleChildScrollView(
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
+              if (authenticationHandler.isLoggedIn)
+                SingleChildScrollView(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: CommentSection(
+                      titleOfEverything: widget.post.title,
+                      type: CommentType.post,
+                    ),
                   ),
-                  padding: const EdgeInsets.all(16),
-                  child: CommentSection(
-                    titleOfEverything: widget.post.title,
+                )
+              else
+                SingleChildScrollView(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: const Text(
+                      "You need to be logged in to comment on this comic.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                 ),
-              ),
           ],
         ),
       ),

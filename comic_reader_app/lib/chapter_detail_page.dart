@@ -3,7 +3,9 @@ import 'package:comic_reader_app/comic_detail_page.dart';
 import 'package:comic_reader_app/handler/theme_handler.dart';
 import 'package:comic_reader_app/handler/bookmark_handler.dart';
 import 'package:comic_reader_app/model/comic.dart';
+import 'package:comic_reader_app/model/novel.dart';
 import 'package:comic_reader_app/novel_detail_page.dart';
+import 'package:comic_reader_app/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -49,6 +51,22 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
             },
           ),
           title: Text(widget.item.title),
+          actions: widget.item is Novel
+              ? [
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ]
+              : [],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

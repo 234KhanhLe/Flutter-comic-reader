@@ -305,14 +305,14 @@ final List<Post> posts = [
   Post(
     title: "First Post",
     content: "Content 1",
-    author: "Author A",
+    author: user1,
     createdTime: DateTime.now(),
     updatedTime: DateTime.now(),
   ),
   Post(
     title: "Second Post",
     content: "Content 2",
-    author: "Author B",
+    author: user2,
     createdTime: DateTime.now(),
     updatedTime: DateTime.now(),
   )

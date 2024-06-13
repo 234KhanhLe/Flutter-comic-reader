@@ -24,7 +24,7 @@ class _EditPostPageState extends State<EditPostPage> {
     createdDate = widget.post.createdTime;
     titleController = TextEditingController(text: widget.post.title);
     contentController = TextEditingController(text: widget.post.content);
-    authorController = TextEditingController(text: widget.post.author);
+    authorController = TextEditingController(text: widget.post.author.username);
   }
 
   @override
@@ -41,7 +41,7 @@ class _EditPostPageState extends State<EditPostPage> {
         widget.post = Post(
           title: titleController.text,
           content: contentController.text,
-          author: authorController.text,
+          author: widget.post.author,
           createdTime: createdDate,
           updatedTime: DateTime.now(),
         );

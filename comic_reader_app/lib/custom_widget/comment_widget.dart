@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 
 class CommentSection extends StatefulWidget {
   final String titleOfEverything;
+  final CommentType type;
 
-  const CommentSection({super.key, required this.titleOfEverything});
+  const CommentSection(
+      {super.key, required this.titleOfEverything, required this.type});
 
   @override
   State<CommentSection> createState() => _CommentSectionState();
@@ -32,8 +34,9 @@ class _CommentSectionState extends State<CommentSection> {
       final newComment = Comment(
         text: commentController.text,
         comicName: widget.titleOfEverything,
+        type: widget.type,
         updatedTime: DateTime.now(),
-        username: authenticationHandler.user!.username.toString(),
+        user: authenticationHandler.user!,
       );
 
       setState(() {
@@ -51,6 +54,18 @@ class _CommentSectionState extends State<CommentSection> {
         isEditing = false;
         editingComment = null;
       });
+    }
+
+    List<Comment> commentsListFromTypes = [];
+
+    if (widget.type == CommentType.post) {
+      commentsListFromTypes = commentHandler.getPostComments();
+    }
+    if (widget.type == CommentType.comic) {
+      commentsListFromTypes = commentHandler.getComicComments();
+    }
+    if (widget.type == CommentType.novel) {
+      commentsListFromTypes = commentHandler.getNovelComments();
     }
 
     void startReply(Comment comment) {
@@ -87,7 +102,7 @@ class _CommentSectionState extends State<CommentSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final comment in commentHandler.comments)
+        for (final comment in commentsListFromTypes)
           CustomCommentWidget(
             comment: comment,
             onReply: startReply,
@@ -234,7 +249,7 @@ class CustomCommentWidgetState extends State<CustomCommentWidget> {
                   ListTile(
                     title: Text(widget.comment.text),
                     subtitle: Text(
-                      'By ${widget.comment.username} On ${DateFormat('yyyy-MM-dd HH:mm').format(widget.comment.updatedTime)}',
+                      'By ${widget.comment.user.username} On ${DateFormat('yyyy-MM-dd HH:mm').format(widget.comment.updatedTime)}',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     trailing: PopupMenuButton(

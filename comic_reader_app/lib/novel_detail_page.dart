@@ -388,6 +388,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                     padding: const EdgeInsets.all(16),
                     child: CommentSection(
                       titleOfEverything: widget.novel.title,
+                      type: CommentType.novel,
                     ),
                   ),
                 )

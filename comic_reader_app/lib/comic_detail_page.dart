@@ -400,6 +400,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                     padding: const EdgeInsets.all(16),
                     child: CommentSection(
                       titleOfEverything: widget.comic.title,
+                      type: CommentType.comic,
                     ),
                   ),
                 )
