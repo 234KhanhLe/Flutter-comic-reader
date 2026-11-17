@@ -19,20 +19,27 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NovelDetailPage extends StatefulWidget {
-  Novel novel;
+  final Novel novel;
 
-  NovelDetailPage({super.key, required this.novel});
+  const NovelDetailPage({super.key, required this.novel});
 
   @override
   State<NovelDetailPage> createState() => _NovelDetailPageState();
 }
 
 class _NovelDetailPageState extends State<NovelDetailPage> {
+  late Novel _novel;
   List<Comment> comments = [];
   bool isCommentSectionVisible = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _novel = widget.novel;
+  }
+
   void showEditNovelDialog() {
-    final index = novels.indexOf(widget.novel);
+    final index = novels.indexOf(_novel);
     showDialog(
       context: context,
       builder: (context) {
@@ -41,7 +48,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
           onSaved: (updatedNovel) {
             setState(
               () {
-                widget.novel = updatedNovel;
+                _novel = updatedNovel;
                 novels[index] = updatedNovel;
               },
             );
@@ -84,7 +91,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
             );
           },
         ),
-        title: Text('${widget.novel.title} Detail'),
+        title: Text('${_novel.title} Detail'),
         actions: [
           if (authenticationHandler.isLoggedIn &&
               authenticationHandler.user?.role == UserRole.admin)
@@ -103,7 +110,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                 if (value == 'edit') {
                   showEditNovelDialog();
                 } else if (value == 'changeChapterOrders') {
-                  openChapterReorderDialog(context, widget.novel);
+                  openChapterReorderDialog(context, _novel);
                 }
               },
               icon: const Icon(Icons.more_vert),
@@ -116,7 +123,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.novel.title,
+              _novel.title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -126,7 +133,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
             Row(
               children: [
                 const Text('Views: '),
-                Text(widget.novel.views.toString()),
+                Text(_novel.views.toString()),
               ],
             ),
             const SizedBox(height: 16),
@@ -136,7 +143,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                 Expanded(
                   child: Text(
                     DateFormat('yyyy-MM-dd HH:mm')
-                        .format(widget.novel.updatedDate),
+                        .format(_novel.updatedDate),
                   ),
                 ),
               ],
@@ -144,9 +151,9 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
             const SizedBox(height: 16),
             Wrap(
               children: [
-                ...widget.novel.tags.isEmpty
+                ..._novel.tags.isEmpty
                     ? [const Text('No Tags')]
-                    : widget.novel.tags
+                    : _novel.tags
                         .map(
                           (tag) => TextButton(
                             onPressed: () {
@@ -163,7 +170,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                                 side: BorderSide(
-                                  color: Colors.grey.withOpacity(0.5),
+                                  color: Colors.grey.withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -188,13 +195,13 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
               padding: const EdgeInsets.all(16),
               child: SizedBox(
                 height: 300,
-                child: widget.novel.chapters.isEmpty
+                child: _novel.chapters.isEmpty
                     ? const Text('No chapters available')
                     : ListView.separated(
                         shrinkWrap: true,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
-                          final chapter = widget.novel.chapters[index];
+                          final chapter = _novel.chapters[index];
                           return Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -205,7 +212,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                               title: Text(chapter.title),
                               onTap: () {
                                 navigateToChapterDetail(
-                                    context, widget.novel, index);
+                                    context, _novel, index);
                               },
                               trailing: PopupMenuButton(
                                 onSelected: (value) {
@@ -214,13 +221,15 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => EditChapterPage(
-                                          novel: widget.novel,
+                                          novel: _novel,
                                           chapterIndex: index,
                                         ),
                                       ),
                                     );
                                   } else if (value == 'delete') {
-                                    widget.novel.chapters.removeAt(index);
+                                    setState(() {
+                                      _novel.chapters.removeAt(index);
+                                    });
                                   } else if (value == 'bookmarked') {
                                     bookmarkHandler.addBookmark(chapter);
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -276,7 +285,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                             ),
                           );
                         },
-                        itemCount: widget.novel.chapters.length,
+                        itemCount: _novel.chapters.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
                       ),
@@ -299,26 +308,25 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                         );
                         if (newChapter != null) {
                           updateNovelWithNewChapter(newChapter);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Chapter "${newChapter.title}" added!'),
-                                duration: const Duration(seconds: 2),
-                                action: SnackBarAction(
-                                  label: 'View',
-                                  onPressed: () {
-                                    navigateToChapterDetail(
-                                      context,
-                                      widget.novel,
-                                      widget.novel.chapters.length -
-                                          1, // Focus on last chapter
-                                    );
-                                  },
-                                ),
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Chapter "${newChapter.title}" added!'),
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'View',
+                                onPressed: () {
+                                  navigateToChapterDetail(
+                                    context,
+                                    _novel,
+                                    _novel.chapters.length -
+                                        1, // Focus on last chapter
+                                  );
+                                },
                               ),
-                            );
-                          }
+                            ),
+                          );
                         }
                       },
                       child: const Text('Add Chapter'),
@@ -328,8 +336,8 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: IconButton(
                     onPressed: () {
-                      if (favoriteHandler.isFavoriteNovel(widget.novel)) {
-                        favoriteHandler.removeFavoriteNovel(widget.novel);
+                      if (favoriteHandler.isFavoriteNovel(_novel)) {
+                        favoriteHandler.removeFavoriteNovel(_novel);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content:
@@ -338,12 +346,12 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                             action: SnackBarAction(
                               label: 'Undo',
                               onPressed: () => favoriteHandler
-                                  .addFavoriteNovel(widget.novel),
+                                  .addFavoriteNovel(_novel),
                             ),
                           ),
                         );
                       } else {
-                        favoriteHandler.addFavoriteNovel(widget.novel);
+                        favoriteHandler.addFavoriteNovel(_novel);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('Novel is added to favorites!'),
@@ -351,17 +359,17 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                             action: SnackBarAction(
                               label: 'Undo',
                               onPressed: () => favoriteHandler
-                                  .removeFavoriteNovel(widget.novel),
+                                  .removeFavoriteNovel(_novel),
                             ),
                           ),
                         );
                       }
                     },
                     icon: Icon(
-                      favoriteHandler.isFavoriteNovel(widget.novel)
+                      favoriteHandler.isFavoriteNovel(_novel)
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: favoriteHandler.isFavoriteNovel(widget.novel)
+                      color: favoriteHandler.isFavoriteNovel(_novel)
                           ? Colors.red
                           : null,
                     ),
@@ -387,7 +395,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                     ),
                     padding: const EdgeInsets.all(16),
                     child: CommentSection(
-                      titleOfEverything: widget.novel.title,
+                      titleOfEverything: _novel.title,
                       type: CommentType.novel,
                     ),
                   ),
@@ -401,7 +409,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                     ),
                     padding: const EdgeInsets.all(16),
                     child: const Text(
-                      "You need to be logged in to comment on this comic.",
+                      "You need to be logged in to comment on this novel.",
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
@@ -433,7 +441,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
 
   void updateNovelWithNewChapter(Chapter newChapter) {
     setState(() {
-      widget.novel.chapters.add(newChapter);
+      _novel.chapters.add(newChapter);
     });
   }
 }

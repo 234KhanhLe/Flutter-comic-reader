@@ -19,21 +19,28 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ComicDetailPage extends StatefulWidget {
-  Comic comic;
+  final Comic comic;
 
-  ComicDetailPage({super.key, required this.comic});
+  const ComicDetailPage({super.key, required this.comic});
 
   @override
   State<ComicDetailPage> createState() => ComicDetailPageState();
 }
 
 class ComicDetailPageState extends State<ComicDetailPage> {
+  late Comic _comic;
   int? editingChapterIndex = 0;
   List<Comment> comments = [];
   bool isCommentSectionVisible = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _comic = widget.comic;
+  }
+
   void showEditComicDialog() {
-    final index = comics.indexOf(widget.comic);
+    final index = comics.indexOf(_comic);
     showDialog(
       context: context,
       builder: (context) {
@@ -42,7 +49,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
           onSaved: (updatedComic) {
             setState(
               () {
-                widget.comic = updatedComic;
+                _comic = updatedComic;
                 comics[index] = updatedComic;
               },
             );
@@ -86,7 +93,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
             );
           },
         ),
-        title: Text('${widget.comic.type} Detail'),
+        title: Text('${_comic.type} Detail'),
         actions: [
           if (authenticationHandler.isLoggedIn &&
               authenticationHandler.user?.role == UserRole.admin)
@@ -105,7 +112,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                 if (value == 'edit') {
                   showEditComicDialog();
                 } else if (value == 'changeChapterOrders') {
-                  openChapterReorderDialog(context, widget.comic);
+                  openChapterReorderDialog(context, _comic);
                 }
               },
               icon: const Icon(Icons.more_vert),
@@ -117,13 +124,13 @@ class ComicDetailPageState extends State<ComicDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            widget.comic.imageUrl != null
+            _comic.imageUrl != null
                 ? Container(
                     height: 200,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(widget.comic.imageUrl!),
+                        image: NetworkImage(_comic.imageUrl!),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -133,7 +140,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                   ),
             const SizedBox(height: 16),
             Text(
-              widget.comic.title,
+              _comic.title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -143,7 +150,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
             Row(
               children: [
                 const Text('Views: '),
-                Text(widget.comic.views.toString()),
+                Text(_comic.views.toString()),
               ],
             ),
             const SizedBox(height: 16),
@@ -153,7 +160,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                 Expanded(
                   child: Text(
                     DateFormat('yyyy-MM-dd HH:mm')
-                        .format(widget.comic.updatedDate),
+                        .format(_comic.updatedDate),
                   ),
                 ),
               ],
@@ -161,9 +168,9 @@ class ComicDetailPageState extends State<ComicDetailPage> {
             const SizedBox(height: 16),
             Wrap(
               children: [
-                ...widget.comic.tags.isEmpty
+                ..._comic.tags.isEmpty
                     ? [const Text('No Tags')]
-                    : widget.comic.tags
+                    : _comic.tags
                         .map(
                           (tag) => TextButton(
                             onPressed: () {
@@ -180,7 +187,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                                 side: BorderSide(
-                                  color: Colors.grey.withOpacity(0.5),
+                                  color: Colors.grey.withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -205,13 +212,13 @@ class ComicDetailPageState extends State<ComicDetailPage> {
               padding: const EdgeInsets.all(16),
               child: SizedBox(
                 height: 150,
-                child: widget.comic.chapters.isEmpty
+                child: _comic.chapters.isEmpty
                     ? const Text('No chapters available')
                     : ListView.separated(
                         shrinkWrap: true,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
-                          final chapter = widget.comic.chapters[index];
+                          final chapter = _comic.chapters[index];
                           return Container(
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -222,7 +229,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                               title: Text(chapter.title),
                               onTap: () {
                                 navigateToChapterDetail(
-                                    context, widget.comic, index);
+                                    context, _comic, index);
                               },
                               trailing: PopupMenuButton(
                                 onSelected: (value) {
@@ -230,7 +237,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                                     showEditChapterDialog(index);
                                   } else if (value == 'delete') {
                                     setState(() {
-                                      widget.comic.chapters.removeAt(index);
+                                      _comic.chapters.removeAt(index);
                                     });
                                   } else if (value == 'bookmarked') {
                                     bookmarkHandler.addBookmark(chapter);
@@ -287,7 +294,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                             ),
                           );
                         },
-                        itemCount: widget.comic.chapters.length,
+                        itemCount: _comic.chapters.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(height: 8),
                       ),
@@ -310,26 +317,25 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                         );
                         if (newChapter != null) {
                           updateComicWithNewChapter(newChapter);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Chapter "${newChapter.title}" added!'),
-                                duration: const Duration(seconds: 2),
-                                action: SnackBarAction(
-                                  label: 'View',
-                                  onPressed: () {
-                                    navigateToChapterDetail(
-                                      context,
-                                      widget.comic,
-                                      widget.comic.chapters.length -
-                                          1, // Focus on last chapter
-                                    );
-                                  },
-                                ),
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Chapter "${newChapter.title}" added!'),
+                              duration: const Duration(seconds: 2),
+                              action: SnackBarAction(
+                                label: 'View',
+                                onPressed: () {
+                                  navigateToChapterDetail(
+                                    context,
+                                    _comic,
+                                    _comic.chapters.length -
+                                        1, // Focus on last chapter
+                                  );
+                                },
                               ),
-                            );
-                          }
+                            ),
+                          );
                         }
                       },
                       child: const Text('Add Chapter'),
@@ -340,8 +346,8 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: IconButton(
                     onPressed: () {
-                      if (favoriteHandler.isFavoriteComic(widget.comic)) {
-                        favoriteHandler.removeFavoriteComic(widget.comic);
+                      if (favoriteHandler.isFavoriteComic(_comic)) {
+                        favoriteHandler.removeFavoriteComic(_comic);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content:
@@ -350,12 +356,12 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                             action: SnackBarAction(
                               label: 'Undo',
                               onPressed: () => favoriteHandler
-                                  .addFavoriteComic(widget.comic),
+                                  .addFavoriteComic(_comic),
                             ),
                           ),
                         );
                       } else {
-                        favoriteHandler.addFavoriteComic(widget.comic);
+                        favoriteHandler.addFavoriteComic(_comic);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: const Text('Comic is added to favorites!'),
@@ -363,17 +369,17 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                             action: SnackBarAction(
                               label: 'Undo',
                               onPressed: () => favoriteHandler
-                                  .removeFavoriteComic(widget.comic),
+                                  .removeFavoriteComic(_comic),
                             ),
                           ),
                         );
                       }
                     },
                     icon: Icon(
-                      favoriteHandler.isFavoriteComic(widget.comic)
+                      favoriteHandler.isFavoriteComic(_comic)
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: favoriteHandler.isFavoriteComic(widget.comic)
+                      color: favoriteHandler.isFavoriteComic(_comic)
                           ? Colors.red
                           : null,
                     ),
@@ -399,7 +405,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
                     ),
                     padding: const EdgeInsets.all(16),
                     child: CommentSection(
-                      titleOfEverything: widget.comic.title,
+                      titleOfEverything: _comic.title,
                       type: CommentType.comic,
                     ),
                   ),
@@ -448,17 +454,17 @@ class ComicDetailPageState extends State<ComicDetailPage> {
       context: context,
       builder: (context) {
         return EditChapterDialog(
-          chapter: widget.comic.chapters[index],
+          chapter: _comic.chapters[index],
           onSave: (updatedChapter) {
             setState(
               () {
-                widget.comic.chapters[index] = updatedChapter;
+                _comic.chapters[index] = updatedChapter;
               },
             );
           },
           onDelete: () => setState(
             () {
-              widget.comic.chapters.removeAt(index);
+              _comic.chapters.removeAt(index);
             },
           ),
         );
@@ -468,7 +474,7 @@ class ComicDetailPageState extends State<ComicDetailPage> {
 
   void updateComicWithNewChapter(Chapter newChapter) {
     setState(() {
-      widget.comic.chapters.add(newChapter);
+      _comic.chapters.add(newChapter);
     });
   }
 }

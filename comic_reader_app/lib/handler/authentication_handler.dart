@@ -14,9 +14,12 @@ class AuthenticationHandler extends ChangeNotifier {
   void login(String username, String password) {
     log(username);
     log(password);
-    final user = users.firstWhere(
+    final userIndex = users.indexWhere(
         (user) => user.username == username && user.password == password);
-    _user = user;
+    if (userIndex == -1) {
+      throw Exception('Invalid username or password.');
+    }
+    _user = users[userIndex];
     notifyListeners();
   }
 

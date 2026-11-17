@@ -126,13 +126,7 @@ class _AddChapterDialogState extends State<AddChapterDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              final newChapter = Chapter(title: _title, content: _content);
-              Navigator.pop(context, newChapter);
-            }
-          },
+          onPressed: _saveChapter,
           child: const Text('Add'),
         ),
       ],

@@ -138,12 +138,12 @@ class _CommentSectionState extends State<CommentSection> {
 }
 
 class CustomCommentWidget extends StatefulWidget {
-  Comment comment;
+  final Comment comment;
   final void Function(Comment) onReply;
   final void Function(Comment) onEdit;
   final void Function(Comment) onDelete;
 
-  CustomCommentWidget(
+  const CustomCommentWidget(
       {super.key,
       required this.comment,
       required this.onReply,
@@ -196,7 +196,7 @@ class CustomCommentWidgetState extends State<CustomCommentWidget> {
         userReactions.add(reaction);
         reactions[reaction] = (reactions[reaction] ?? 0) + 1;
       }
-      widget.comment = widget.comment.copyWith(reactions: reactions);
+      widget.comment.reactions = reactions;
     });
   }
 

@@ -3,10 +3,10 @@ import 'package:comic_reader_app/post_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class EditPostPage extends StatefulWidget {
-  Post post;
+  final Post post;
   final Function(Post) onSave;
 
-  EditPostPage({super.key, required this.post, required this.onSave});
+  const EditPostPage({super.key, required this.post, required this.onSave});
   @override
   State<EditPostPage> createState() => _EditPostPageState();
 }
@@ -37,21 +37,19 @@ class _EditPostPageState extends State<EditPostPage> {
 
   void savePost() {
     if (formKey.currentState!.validate()) {
-      setState(() {
-        widget.post = Post(
-          title: titleController.text,
-          content: contentController.text,
-          author: widget.post.author,
-          createdTime: createdDate,
-          updatedTime: DateTime.now(),
-        );
-      });
+      final updatedPost = Post(
+        title: titleController.text,
+        content: contentController.text,
+        author: widget.post.author,
+        createdTime: createdDate,
+        updatedTime: DateTime.now(),
+      );
       Navigator.pop(context);
-      widget.onSave(widget.post);
+      widget.onSave(updatedPost);
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => PostDetailPage(post: widget.post)));
+              builder: (context) => PostDetailPage(post: updatedPost)));
     }
   }
 

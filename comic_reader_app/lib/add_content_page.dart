@@ -31,7 +31,7 @@ class _AddContentPageState extends State<AddContentPage> {
           child: Column(
             children: [
               DropdownButtonFormField<String>(
-                value: _type,
+                initialValue: _type,
                 items: ['Comic', 'Novel'].map((String type) {
                   return DropdownMenuItem<String>(
                     value: type,
@@ -128,15 +128,10 @@ class _AddContentPageState extends State<AddContentPage> {
         );
 
         final savedComic = await ContentService().saveComic(comic);
+        if (!mounted) return;
 
         if (savedComic != null) {
           Navigator.pop(context, savedComic);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Comic saved successfully!'),
-              duration: Duration(seconds: 2),
-            ),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -154,15 +149,10 @@ class _AddContentPageState extends State<AddContentPage> {
           updatedDate: DateTime.now(),
         );
         final savedNovel = await ContentService().saveNovel(novel);
+        if (!mounted) return;
 
         if (savedNovel != null) {
           Navigator.pop(context, savedNovel);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Novel saved successfully!'),
-              duration: Duration(seconds: 2),
-            ),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

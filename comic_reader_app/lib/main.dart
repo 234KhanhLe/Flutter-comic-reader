@@ -20,23 +20,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(
-          value: ThemeHandler(),
+        ChangeNotifierProvider(
+          create: (_) => ThemeHandler(),
         ),
-        ChangeNotifierProvider.value(
-          value: BookmarkHandler(),
+        ChangeNotifierProvider(
+          create: (_) => BookmarkHandler(),
         ),
-        ChangeNotifierProvider.value(
-          value: FavoriteHandler(),
+        ChangeNotifierProvider(
+          create: (_) => FavoriteHandler(),
         ),
-        ChangeNotifierProvider.value(
-          value: CommentHandler(),
+        ChangeNotifierProvider(
+          create: (_) => CommentHandler(),
         ),
-        ChangeNotifierProvider.value(
-          value: FontSizeHandler(),
+        ChangeNotifierProvider(
+          create: (_) => FontSizeHandler(),
         ),
-        ChangeNotifierProvider.value(
-          value: AuthenticationHandler(),
+        ChangeNotifierProvider(
+          create: (_) => AuthenticationHandler(),
         )
       ],
       child: Consumer<ThemeHandler>(

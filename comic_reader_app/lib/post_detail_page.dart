@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class PostDetailPage extends StatefulWidget {
-  Post post;
+  final Post post;
 
-  PostDetailPage({super.key, required this.post});
+  const PostDetailPage({super.key, required this.post});
 
   @override
   State<PostDetailPage> createState() => PostDetailPageState();

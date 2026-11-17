@@ -33,9 +33,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
   Widget build(BuildContext context) {
     final bookmarkHandler = context.watch<BookmarkHandler>();
     final fontSizeHandler = context.watch<FontSizeHandler>();
-    return ChangeNotifierProvider(
-      create: (_) => ThemeHandler(),
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -143,8 +141,7 @@ class _ChapterDetailPageState extends State<ChapterDetailPage> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget getPreviousButton(BuildContext context) {

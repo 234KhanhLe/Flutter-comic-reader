@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:comic_reader_app/add_content_page.dart';
 import 'package:comic_reader_app/bookmark_page.dart';
 import 'package:comic_reader_app/custom_widget/chapter_reorder_widget.dart';
@@ -17,7 +15,6 @@ import 'package:comic_reader_app/model/user.dart';
 import 'package:comic_reader_app/novel_detail_page.dart';
 import 'package:comic_reader_app/post_page.dart';
 import 'package:comic_reader_app/setting_page.dart';
-import 'package:comic_reader_app/handler/theme_handler.dart';
 import 'package:comic_reader_app/tag_management_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -86,13 +83,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final authenticationHandler = context.watch<AuthenticationHandler>();
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => ThemeHandler(),
-        ),
-      ],
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: isSearching
               ? TextField(
@@ -100,9 +91,7 @@ class _HomePageState extends State<HomePage>
                   decoration: const InputDecoration(
                     hintText: 'Search...',
                     border: InputBorder.none,
-                    hintStyle: TextStyle(color: Colors.black),
                   ),
-                  style: const TextStyle(color: Colors.black),
                   onChanged: (query) {
                     setState(() {
                       searchQuery = query;
@@ -309,8 +298,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -333,7 +321,7 @@ class _ComicListState extends State<ComicList> {
       context: context,
       builder: (context) {
         return EditDialog(
-          item: widget.comics[index],
+          item: widget.comics[originalIndex],
           onSaved: (updatedComic) {
             setState(
               () {
@@ -491,7 +479,7 @@ class _NovelListState extends State<NovelList> {
       context: context,
       builder: (context) {
         return EditDialog(
-          item: widget.novels[index],
+          item: widget.novels[originalIndex],
           onSaved: (updatedNovel) {
             setState(
               () {

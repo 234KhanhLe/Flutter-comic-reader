@@ -27,7 +27,7 @@ class PostList extends State<PostPage> {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(posts[index].title),
-                  subtitle: Text('By ${posts[index].author}'),
+                  subtitle: Text('By ${posts[index].author.username}'),
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(color: Colors.grey, width: 1),
                     borderRadius: BorderRadius.circular(5),
@@ -60,7 +60,9 @@ class PostList extends State<PostPage> {
                           ),
                         );
                       } else if (value == 'delete') {
-                        posts.removeAt(index);
+                        setState(() {
+                          posts.removeAt(index);
+                        });
                       }
                     },
                     itemBuilder: (context) => [
