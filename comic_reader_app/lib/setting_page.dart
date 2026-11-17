@@ -1,30 +1,14 @@
-import 'package:comic_reader_app/handler/authentication_handler.dart';
 import 'package:comic_reader_app/handler/theme_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SettingPage extends StatefulWidget {
+class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
-
-  @override
-  State<SettingPage> createState() => _SettingPageState();
-}
-
-class _SettingPageState extends State<SettingPage> {
-  late ThemeMode _currentTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentTheme =
-        Provider.of<ThemeHandler>(context, listen: false).currentTheme;
-  }
 
   @override
   Widget build(BuildContext context) {
     final themeHandler = context.watch<ThemeHandler>();
     final fontSizeHandler = context.watch<FontSizeHandler>();
-    final authenticationHandler = context.watch<AuthenticationHandler>();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,55 +17,46 @@ class _SettingPageState extends State<SettingPage> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (authenticationHandler.isLoggedIn)
-              ListTile(
-                title: const Text('Light Theme'),
-                trailing: Radio<ThemeMode>(
-                  value: ThemeMode.light,
-                  groupValue: _currentTheme,
-                  onChanged: (ThemeMode? value) {
-                    setState(
-                      () {
-                        _currentTheme = value!;
-                        themeHandler.toggleTheme(value);
-                      },
-                    );
-                  },
-                ),
+            const Text(
+              'Theme Settings',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            RadioGroup<ThemeMode>(
+              groupValue: themeHandler.currentTheme,
+              onChanged: (ThemeMode? value) {
+                if (value != null) {
+                  themeHandler.toggleTheme(value);
+                }
+              },
+              child: Column(
+                children: [
+                  ListTile(
+                    title: const Text('Light Theme'),
+                    trailing: const Radio<ThemeMode>(
+                      value: ThemeMode.light,
+                    ),
+                    onTap: () => themeHandler.toggleTheme(ThemeMode.light),
+                  ),
+                  ListTile(
+                    title: const Text('Dark Theme'),
+                    trailing: const Radio<ThemeMode>(
+                      value: ThemeMode.dark,
+                    ),
+                    onTap: () => themeHandler.toggleTheme(ThemeMode.dark),
+                  ),
+                  ListTile(
+                    title: const Text('Follow System Theme'),
+                    trailing: const Radio<ThemeMode>(
+                      value: ThemeMode.system,
+                    ),
+                    onTap: () => themeHandler.toggleTheme(ThemeMode.system),
+                  ),
+                ],
               ),
-            if (authenticationHandler.isLoggedIn)
-              ListTile(
-                title: const Text('Dark Theme'),
-                trailing: Radio(
-                  value: ThemeMode.dark,
-                  groupValue: _currentTheme,
-                  onChanged: (ThemeMode? value) {
-                    setState(
-                      () {
-                        _currentTheme = value!;
-                        themeHandler.toggleTheme(value);
-                      },
-                    );
-                  },
-                ),
-              ),
-            if (authenticationHandler.isLoggedIn)
-              ListTile(
-                title: const Text('Follow System Theme'),
-                trailing: Radio(
-                  value: ThemeMode.system,
-                  groupValue: _currentTheme,
-                  onChanged: (ThemeMode? value) {
-                    setState(
-                      () {
-                        _currentTheme = value!;
-                        themeHandler.toggleTheme(value);
-                      },
-                    );
-                  },
-                ),
-              ),
+            ),
             const SizedBox(height: 24),
             const Text(
               'Font Size Settings',
